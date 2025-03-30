@@ -1,15 +1,21 @@
 import { NextResponse } from 'next/server';
-import { Message } from '@/types/chat';
 import { ChatModel } from '@/models/chat';
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const { messages } = await req.json();
-    const chatModel = ChatModel.getInstance();
-    const response = await chatModel.sendMessage(messages);
+    const { messages } = await request.json();
+    
+    if (!messages || !Array.isArray(messages)) {
+      return NextResponse.json(
+        { error: 'Invalid messages format' },
+        { status: 400 }
+      );
+    }
+
+    const response = await ChatModel.sendMessage(messages);
     return NextResponse.json(response);
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Chat API error:', error);
     return NextResponse.json(
       { error: 'Failed to process chat request' },
       { status: 500 }
