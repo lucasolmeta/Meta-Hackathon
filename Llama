@@ -1,5 +1,1 @@
-# Ignore the virtual environment folder
-llama-env/
-__pycache__/
-*.pyc
-.env
+
