@@ -1,4 +1,0 @@
-llama-stack
-requests
-Flask
-streamlit
