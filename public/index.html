@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartShop AI</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .chat-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 70%;
+        }
+        .user-message {
+            background-color: #e1f5fe;
+            margin-left: auto;
+            text-align: right;
+        }
+        .bot-message {
+            background-color: #f0f0f0;
+        }
+        .input-area {
+            display: flex;
+            margin-top: 20px;
+        }
+        #user-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-left: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .profile-section {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .recommendations {
+            margin-top: 20px;
+        }
+        .product {
+            background-color: #e8f5e9;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>SmartShop AI - Your Shopping Assistant</h1>
+    
+    <div class="profile-section">
+        <h2>Your Profile</h2>
+        <div>
+            <p><strong>Preferences:</strong> Fashion, Electronics, Home Decor</p>
+            <p><strong>Size:</strong> Medium</p>
+            <p><strong>Budget:</strong> $100-$500</p>
+        </div>
+        
+        <div class="recommendations">
+            <h3>Recommended for You</h3>
+            <div id="recommendations-list">
+                <div class="product">Loading recommendations...</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="chat-container">
+        <h2>Chat with SmartShop AI</h2>
+        <div id="chat-messages">
+            <div class="message bot-message">
+                Hi there! I'm SmartShop AI, your personal shopping assistant. How can I help you find the perfect product today?
+            </div>
+        </div>
+        
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Ask me about products, trends, or deals...">
+            <button id="send-button">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Sample preferences and history for demo
+        const userPreferences = {
+            categories: ["fashion", "electronics", "home decor"],
+            size: "medium",
+            priceRange: { min: 100, max: 500 }
+        };
+        
+        const purchaseHistory = [
+            { name: "Wireless Headphones", category: "electronics", price: 129.99 },
+            { name: "Cotton T-shirt", category: "fashion", price: 24.99 }
+        ];
+
+        // DOM elements
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const recommendationsList = document.getElementById('recommendations-list');
+
+        // Load recommendations on page load
+        window.addEventListener('DOMContentLoaded', fetchRecommendations);
+
+        // Add event listeners
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
+
+            // Add user message to chat
+            addMessage(message, 'user');
+            userInput.value = '';
+
+            // Send to backend
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                addMessage(data.response, 'bot');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                addMessage('Sorry, I encountered an error. Please try again.', 'bot');
+            });
+        }
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function fetchRecommendations() {
+            // For demo purposes, we'll just simulate recommendations
+            // In a real app, you would fetch from your backend
+            const demoRecommendations = [
+                "Premium Wireless Earbuds - $149.99",
+                "Slim Fit Oxford Shirt - $59.99",
+                "Smart Home Assistant - $129.99",
+                "Minimalist Wall Clock - $45.99",
+                "Portable SSD Drive - $89.99"
+            ];
+            
+            recommendationsList.innerHTML = '';
+            demoRecommendations.forEach(rec => {
+                const div = document.createElement('div');
+                div.classList.add('product');
+                div.textContent = rec;
+                recommendationsList.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>
